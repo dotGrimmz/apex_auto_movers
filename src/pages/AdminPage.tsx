@@ -4,13 +4,27 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
 import { Skeleton } from "../components/ui/skeleton";
 import { LogOut, Search, Filter, ArrowRight, AlertCircle } from "lucide-react";
 import { api } from "../utils/api";
 import { signOut } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
+import { api } from "../utils/api";
 
 interface Quote {
   id: string;
@@ -27,20 +41,16 @@ interface Quote {
 
 const statusOptions = [
   { value: "new", label: "New" },
-  { value: "quoted", label: "Quoted" },
+  { value: "contacted", label: "Contacted" },
   { value: "booked", label: "Booked" },
-  { value: "in_transit", label: "In Transit" },
   { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
 ];
 
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
-  quoted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+  contacted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
   booked: "bg-green-500/20 text-green-400 border-green-500/50",
-  in_transit: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
-  cancelled: "bg-red-500/20 text-red-400 border-red-500/50",
 };
 
 export function AdminPage() {
@@ -53,7 +63,19 @@ export function AdminPage() {
   const { navigate } = useRouter();
 
   useEffect(() => {
-    loadQuotes();
+    // Ensure only admins can access
+    (async () => {
+      try {
+        const res = await api.getProfile();
+        if (!res?.profile || res.profile.role !== "admin") {
+          navigate("/login");
+          return;
+        }
+        loadQuotes();
+      } catch (_) {
+        navigate("/login");
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -99,7 +121,7 @@ export function AdminPage() {
   async function handleStatusChange(quoteId: string, newStatus: string) {
     try {
       await api.updateQuoteStatus(quoteId, newStatus);
-      
+
       // Update local state
       setQuotes((prev) =>
         prev.map((q) => (q.id === quoteId ? { ...q, status: newStatus } : q))
@@ -130,7 +152,9 @@ export function AdminPage() {
                 <span className="text-[#0A1020] font-bold text-xl">A</span>
               </div>
               <div>
-                <span className="text-white text-xl tracking-tight">Apex Auto Movers</span>
+                <span className="text-white text-xl tracking-tight">
+                  Apex Auto Movers
+                </span>
                 <Badge className="ml-2 bg-purple-500/20 text-purple-400 border-purple-500/50">
                   Admin
                 </Badge>
@@ -156,7 +180,9 @@ export function AdminPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl sm:text-4xl text-white mb-2">Quote Management</h1>
+          <h1 className="text-3xl sm:text-4xl text-white mb-2">
+            Quote Management
+          </h1>
           <p className="text-white/70">Manage all customer transport quotes</p>
         </motion.div>
 
@@ -199,7 +225,8 @@ export function AdminPage() {
               Total: <span className="text-[#00FFB0]">{quotes.length}</span>
             </div>
             <div className="text-white/70">
-              Filtered: <span className="text-[#00FFB0]">{filteredQuotes.length}</span>
+              Filtered:{" "}
+              <span className="text-[#00FFB0]">{filteredQuotes.length}</span>
             </div>
           </div>
         </Card>
@@ -245,7 +272,10 @@ export function AdminPage() {
                 <TableBody>
                   {filteredQuotes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-white/50 py-8">
+                      <TableCell
+                        colSpan={6}
+                        className="text-center text-white/50 py-8"
+                      >
                         No quotes found
                       </TableCell>
                     </TableRow>
@@ -257,8 +287,12 @@ export function AdminPage() {
                       >
                         <TableCell>
                           <div className="text-white">{quote.name}</div>
-                          <div className="text-white/50 text-sm">{quote.email}</div>
-                          <div className="text-white/50 text-sm">{quote.phone}</div>
+                          <div className="text-white/50 text-sm">
+                            {quote.email}
+                          </div>
+                          <div className="text-white/50 text-sm">
+                            {quote.phone}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-white">{quote.vehicle}</div>
@@ -274,7 +308,11 @@ export function AdminPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${statusColors[quote.status]} border text-xs`}>
+                          <Badge
+                            className={`${
+                              statusColors[quote.status]
+                            } border text-xs`}
+                          >
                             {quote.status.replace("_", " ").toUpperCase()}
                           </Badge>
                         </TableCell>
@@ -284,14 +322,19 @@ export function AdminPage() {
                         <TableCell>
                           <Select
                             value={quote.status}
-                            onValueChange={(value) => handleStatusChange(quote.id, value)}
+                            onValueChange={(value) =>
+                              handleStatusChange(quote.id, value)
+                            }
                           >
                             <SelectTrigger className="w-32 bg-white/10 border-white/20 text-white text-xs h-8">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               {statusOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
                                   {option.label}
                                 </SelectItem>
                               ))}

@@ -14,15 +14,18 @@ export function QuoteForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    pickupLocation: "",
-    deliveryLocation: "",
-    vehicle: "",
-    transportType: "",
+    pickup: "",
+    delivery: "",
+    make: "",
+    model: "",
+    transport_type: "" as '' | 'open' | 'enclosed',
+    pickup_date: "",
     name: "",
     email: "",
     phone: "",
   });
   const { navigate } = useRouter();
+  // No auth requirement for quote submission
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,15 +33,29 @@ export function QuoteForm() {
     setError("");
 
     try {
-      await api.submitQuote(formData);
+      // Build payload matching API typings
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        pickup: formData.pickup,
+        delivery: formData.delivery,
+        make: formData.make,
+        model: formData.model,
+        transport_type: formData.transport_type as 'open' | 'enclosed',
+        pickup_date: formData.pickup_date || undefined,
+      };
+      await api.submitQuote(payload);
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
         setFormData({
-          pickupLocation: "",
-          deliveryLocation: "",
-          vehicle: "",
-          transportType: "",
+          pickup: "",
+          delivery: "",
+          make: "",
+          model: "",
+          transport_type: "",
+          pickup_date: "",
           name: "",
           email: "",
           phone: "",
@@ -111,8 +128,8 @@ export function QuoteForm() {
               id="pickup"
               placeholder="City, State or ZIP"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
-              value={formData.pickupLocation}
-              onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
+              value={formData.pickup}
+              onChange={(e) => setFormData({ ...formData, pickup: e.target.value })}
               required
             />
           </div>
@@ -126,25 +143,40 @@ export function QuoteForm() {
               id="delivery"
               placeholder="City, State or ZIP"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
-              value={formData.deliveryLocation}
-              onChange={(e) => setFormData({ ...formData, deliveryLocation: e.target.value })}
+              value={formData.delivery}
+              onChange={(e) => setFormData({ ...formData, delivery: e.target.value })}
               required
             />
           </div>
 
           {/* Vehicle Make & Model */}
-          <div className="space-y-2">
-            <Label htmlFor="vehicle" className="text-[#0A1020]">
-              Vehicle Make & Model
-            </Label>
-            <Input
-              id="vehicle"
-              placeholder="e.g., 2023 Toyota Camry"
-              className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
-              value={formData.vehicle}
-              onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-              required
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="make" className="text-[#0A1020]">
+                Vehicle Make
+              </Label>
+              <Input
+                id="make"
+                placeholder="e.g., Toyota"
+                className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
+                value={formData.make}
+                onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="model" className="text-[#0A1020]">
+                Vehicle Model
+              </Label>
+              <Input
+                id="model"
+                placeholder="e.g., Camry"
+                className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
+                value={formData.model}
+                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                required
+              />
+            </div>
           </div>
 
           {/* Transport Type */}
@@ -154,8 +186,8 @@ export function QuoteForm() {
             </Label>
             <Select 
               required
-              value={formData.transportType}
-              onValueChange={(value) => setFormData({ ...formData, transportType: value })}
+              value={formData.transport_type}
+              onValueChange={(value) => setFormData({ ...formData, transport_type: value as 'open' | 'enclosed' })}
             >
               <SelectTrigger className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]">
                 <SelectValue placeholder="Select transport type" />
@@ -165,6 +197,20 @@ export function QuoteForm() {
                 <SelectItem value="enclosed">Enclosed Transport</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Optional Pickup Date */}
+          <div className="space-y-2">
+            <Label htmlFor="pickup_date" className="text-[#0A1020]">
+              Preferred Pickup Date (optional)
+            </Label>
+            <Input
+              id="pickup_date"
+              type="date"
+              className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
+              value={formData.pickup_date}
+              onChange={(e) => setFormData({ ...formData, pickup_date: e.target.value })}
+            />
           </div>
 
           {/* Name */}

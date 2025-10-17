@@ -39,7 +39,17 @@ export const api = {
     }),
 
   // Quotes
-  submitQuote: (quoteData: any) =>
+  submitQuote: (quoteData: {
+    name: string;
+    email: string;
+    phone?: string;
+    pickup: string;
+    delivery: string;
+    make: string;
+    model: string;
+    transport_type: 'open' | 'enclosed';
+    pickup_date?: string;
+  }) =>
     apiRequest('/quote', {
       method: 'POST',
       body: JSON.stringify(quoteData),
