@@ -7,7 +7,28 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const app = new Hono();
 
 // Middleware
-app.use("*", cors());
+app.use(
+  "*",
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://your-domain.com",
+    ],
+    allowMethods: ["GET", "POST", "PATCH", "OPTIONS"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "apikey",
+      "x-client-info",
+      "x-supabase-api-version",
+    ],
+    credentials: false,
+    maxAge: 86400,
+  })
+);
+// Explicit preflight handler (some hosts require it)
+app.options("*", (c) => c.text("", 204));
 app.use("*", logger(console.log));
 
 // Initialize Supabase client
@@ -51,7 +72,10 @@ app.post("/make-server-f0a9c31f/signup", async (c) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    await rpcClient.from("profiles").update({ name }).eq("user_id", data.user.id);
+    await rpcClient
+      .from("profiles")
+      .update({ name })
+      .eq("user_id", data.user.id);
 
     return c.json({
       success: true,
@@ -71,7 +95,9 @@ app.post("/make-server-f0a9c31f/quote", async (c) => {
     const accessToken = c.req.header("Authorization")?.split(" ")[1];
     let userId: string | null = null;
     if (accessToken && accessToken !== Deno.env.get("SUPABASE_ANON_KEY")) {
-      const { data: authUser, error: authErr } = await supabase.auth.getUser(accessToken);
+      const { data: authUser, error: authErr } = await supabase.auth.getUser(
+        accessToken
+      );
       if (!authErr && authUser?.user) {
         userId = authUser.user.id;
       }
@@ -112,7 +138,11 @@ app.post("/make-server-f0a9c31f/quote", async (c) => {
       pickup_date: body.pickup_date ?? null,
       status: "new",
     };
-    const { data, error } = await svc.from("quotes").insert(insert).select("*").single();
+    const { data, error } = await svc
+      .from("quotes")
+      .insert(insert)
+      .select("*")
+      .single();
     if (error) return c.json({ error: error.message }, 400);
     return c.json({ success: true, quote: data });
   } catch (error) {
@@ -179,9 +209,12 @@ app.get("/make-server-f0a9c31f/quotes/all", async (c) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    const { data: isAdminRes, error: aerr } = await db.rpc("is_admin", { uid: user.id });
+    const { data: isAdminRes, error: aerr } = await db.rpc("is_admin", {
+      uid: user.id,
+    });
     if (aerr) return c.json({ error: aerr.message }, 400);
-    if (!isAdminRes) return c.json({ error: "Forbidden - Admin access required" }, 403);
+    if (!isAdminRes)
+      return c.json({ error: "Forbidden - Admin access required" }, 403);
 
     const { data: allQuotes, error: qerr } = await db
       .from("quotes")
@@ -218,9 +251,12 @@ app.patch("/make-server-f0a9c31f/quotes/:id/status", async (c) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    const { data: isAdminRes, error: aerr } = await db.rpc("is_admin", { uid: user.id });
+    const { data: isAdminRes, error: aerr } = await db.rpc("is_admin", {
+      uid: user.id,
+    });
     if (aerr) return c.json({ error: aerr.message }, 400);
-    if (!isAdminRes) return c.json({ error: "Forbidden - Admin access required" }, 403);
+    if (!isAdminRes)
+      return c.json({ error: "Forbidden - Admin access required" }, 403);
 
     const quoteId = c.req.param("id");
     const { status } = await c.req.json();
@@ -255,9 +291,7 @@ app.post("/make-server-f0a9c31f/newsletter", async (c) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    const { error } = await db
-      .from("newsletter_subscribers")
-      .insert({ email });
+    const { error } = await db.from("newsletter_subscribers").insert({ email });
     if (error) {
       // Unique violation handling
       if (error.message.includes("duplicate key")) {
@@ -265,7 +299,10 @@ app.post("/make-server-f0a9c31f/newsletter", async (c) => {
       }
       return c.json({ error: error.message }, 400);
     }
-    return c.json({ success: true, message: "Successfully subscribed to newsletter" });
+    return c.json({
+      success: true,
+      message: "Successfully subscribed to newsletter",
+    });
   } catch (error) {
     console.error("Newsletter subscription error:", error);
     return c.json({ error: "Failed to subscribe" }, 500);
