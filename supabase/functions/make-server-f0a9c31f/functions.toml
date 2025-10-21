@@ -1,0 +1,21 @@
+[functions.make-server-f0a9c31f]
+# If you protect with JWT at the proxy, set true. Using Bearer header inside handler instead.
+verify_jwt = false
+
+# Allowed origins for CORS preflight handled by Supabase proxy
+cors_origins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://your-domain.com", # TODO: replace with your real domain
+]
+
+# Methods and headers the browser may use
+cors_methods = ["GET", "POST", "PATCH", "OPTIONS"]
+cors_headers = [
+  "Content-Type",
+  "Authorization",
+  "apikey",
+  "x-client-info",
+  "x-supabase-api-version",
+]
+
