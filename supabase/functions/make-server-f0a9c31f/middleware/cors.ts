@@ -8,7 +8,7 @@ export function useCors(app: Hono) {
       origin: [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://apex-auto-movers.vercel.app/",
+        "https://apex-auto-movers.vercel.app",
       ],
       allowMethods: ["GET", "POST", "PATCH", "OPTIONS"],
       allowHeaders: [
