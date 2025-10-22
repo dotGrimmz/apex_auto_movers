@@ -263,13 +263,13 @@ app.patch("/make-server-f0a9c31f/quotes/:id/status", async (c) => {
     if (!["new", "contacted", "booked", "completed"].includes(status)) {
       return c.json({ error: "Invalid status" }, 400);
     }
-    const { data, error } = await db
+    const { data, error: uerr } = await db
       .from("quotes")
       .update({ status })
       .eq("id", quoteId)
       .select("*")
       .single();
-    if (error) return c.json({ error: error.message }, 400);
+    if (uerr) return c.json({ error: uerr.message }, 400);
     if (!data) return c.json({ error: "Quote not found" }, 404);
     return c.json({ success: true, quote: data });
   } catch (error) {
