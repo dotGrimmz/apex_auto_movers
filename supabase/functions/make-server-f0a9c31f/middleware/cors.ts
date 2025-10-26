@@ -18,7 +18,7 @@ export function useCors(app: Hono) {
         "x-client-info",
         "x-supabase-api-version",
       ],
-      credentials: false,
+      credentials: true,
       maxAge: 86400,
     })
   );

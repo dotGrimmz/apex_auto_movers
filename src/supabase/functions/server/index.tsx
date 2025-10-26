@@ -82,6 +82,7 @@ app.post("/make-server-f0a9c31f/quote", async (c) => {
       }
     }
 
+    console.log("this is hitting from the server file in the client");
     const required = [
       "name",
       "email",

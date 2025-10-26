@@ -16,6 +16,8 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const token = await getAuthToken();
   console.log(token, "token");
   console.log(`${API_BASE_URL}${endpoint}`, "endpoint");
+  console.log(options.headers, "headers");
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {

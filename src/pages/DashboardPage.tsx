@@ -46,6 +46,7 @@ export function DashboardPage() {
         setUserName(user.user_metadata.name);
       }
 
+      console.log({ user });
       const { quotes: userQuotes } = await api.getMyQuotes();
       setQuotes(userQuotes);
     } catch (err: any) {
@@ -75,7 +76,9 @@ export function DashboardPage() {
               <div className="w-10 h-10 bg-[#00FFB0] rounded-lg flex items-center justify-center">
                 <span className="text-[#0A1020] font-bold text-xl">A</span>
               </div>
-              <span className="text-white text-xl tracking-tight">Apex Auto Movers</span>
+              <span className="text-white text-xl tracking-tight">
+                Apex Auto Movers
+              </span>
             </div>
             <Button
               onClick={handleSignOut}
@@ -175,9 +178,14 @@ export function DashboardPage() {
 
                       {/* Vehicle Info */}
                       <div>
-                        <h3 className="text-xl text-white mb-1">{quote.vehicle}</h3>
+                        <h3 className="text-xl text-white mb-1">
+                          {quote.vehicle}
+                        </h3>
                         <p className="text-white/50 text-sm">
-                          {quote.transport_type === "open" ? "Open" : "Enclosed"} Transport
+                          {quote.transport_type === "open"
+                            ? "Open"
+                            : "Enclosed"}{" "}
+                          Transport
                         </p>
                       </div>
 
@@ -187,16 +195,22 @@ export function DashboardPage() {
                         <span className="text-sm">{quote.pickup_location}</span>
                         <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
-                        <span className="text-sm">{quote.delivery_location}</span>
+                        <span className="text-sm">
+                          {quote.delivery_location}
+                        </span>
                       </div>
 
                       {/* Date */}
                       <p className="text-white/50 text-sm">
-                        Requested: {new Date(quote.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        Requested:{" "}
+                        {new Date(quote.created_at).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </p>
                     </div>
                   </div>
