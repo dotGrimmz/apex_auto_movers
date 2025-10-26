@@ -11,7 +11,10 @@ app.use("*", cors());
 app.use("*", logger(console.log));
 
 // Initialize Supabase client
-const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("")!);
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 // No schema bootstrap here; run the provided SQL in Supabase
 
@@ -79,6 +82,7 @@ app.post("/make-server-f0a9c31f/quote", async (c) => {
       }
     }
 
+    console.log("this is hitting from the server file in the client");
     const required = [
       "name",
       "email",
