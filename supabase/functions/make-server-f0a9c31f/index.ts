@@ -8,9 +8,11 @@ import { registerAdmin } from "./routes/admin.ts";
 import { registerNewsletter } from "./routes/newsletter.ts";
 import { registerProfile } from "./routes/profile.ts";
 import { handleErrors } from "./lib/errors.ts";
+import { cors } from "hono/cors";
 
 const app = new Hono();
 
+app.use(cors());
 // Global middleware
 useCors(app);
 useLogger(app);
