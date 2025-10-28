@@ -1,19 +1,14 @@
 import { createClient } from "./supabase/client";
 
-const API_BASE_URL = "/api"; // same-origin Next.js API
+const API_BASE_URL = "/api"; // same-origin Express API via Vite proxy
 
-async function getAuthToken(): Promise<string> {
+export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return session?.access_token || null as any;
-}
+  const token = session?.access_token;
 
-export async function apiRequest(endpoint: string, options: RequestInit = {}) {
-  const token = await getAuthToken();
-  console.log(token, "token");
-  console.log(`${API_BASE_URL}${endpoint}`, "endpoint");
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -23,9 +18,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     },
   });
 
-  console.log(response, "response");
   const data = await response.json();
-
   if (!response.ok) {
     throw new Error(data.error || "API request failed");
   }

@@ -47,7 +47,8 @@ export function DashboardPage() {
       }
 
       console.log({ user });
-      const { quotes: userQuotes } = await api.getMyQuotes();
+      const { data: userQuotes } = await api.getMyQuotes();
+      console.log("📦 Full API response:", userQuotes);
       setQuotes(userQuotes);
     } catch (err: any) {
       console.error("Error loading dashboard:", err);
@@ -136,7 +137,7 @@ export function DashboardPage() {
         )}
 
         {/* Empty State */}
-        {!loading && quotes.length === 0 && (
+        {!loading && quotes?.length === 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -192,12 +193,10 @@ export function DashboardPage() {
                       {/* Route */}
                       <div className="flex items-center space-x-3 text-white/70">
                         <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
-                        <span className="text-sm">{quote.pickup_location}</span>
+                        <span className="text-sm">{quote.pickup}</span>
                         <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
-                        <span className="text-sm">
-                          {quote.delivery_location}
-                        </span>
+                        <span className="text-sm">{quote.delivery}</span>
                       </div>
 
                       {/* Date */}

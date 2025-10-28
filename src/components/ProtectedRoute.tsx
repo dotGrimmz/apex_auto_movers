@@ -8,7 +8,10 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
-export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requireAdmin = false,
+}: ProtectedRouteProps) {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const { navigate } = useRouter();
@@ -20,7 +23,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   async function checkAuth() {
     try {
       const user = await getCurrentUser();
-      
+
       if (!user) {
         navigate("/login");
         return;
@@ -29,14 +32,15 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
       if (requireAdmin) {
         // Check admin status
         const { api } = await import("../utils/api");
-        const { profile } = await api.getProfile();
-        
+        const { data: profile } = await api.getProfile();
+        console.log(profile.role, "role");
         if (profile.role !== "admin") {
+          console.log("not admin");
           navigate("/dashboard");
           return;
         }
       }
-
+      console.log("authorized");
       setAuthorized(true);
     } catch (error) {
       console.error("Auth check error:", error);

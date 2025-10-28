@@ -65,8 +65,8 @@ export function AdminPage() {
     // Ensure only admins can access
     (async () => {
       try {
-        const res = await api.getProfile();
-        if (!res?.profile || res.profile.role !== "admin") {
+        const { data: profile } = await api.getProfile();
+        if (profile || profile.role !== "admin") {
           navigate("/login");
           return;
         }
@@ -83,7 +83,7 @@ export function AdminPage() {
 
   async function loadQuotes() {
     try {
-      const { quotes: allQuotes } = await api.getAllQuotes();
+      const { data: allQuotes } = await api.getAllQuotes();
       setQuotes(allQuotes);
     } catch (err: any) {
       console.error("Error loading quotes:", err);
@@ -321,7 +321,7 @@ export function AdminPage() {
                         <TableCell>
                           <Select
                             value={quote.status}
-                            onValueChange={(value) =>
+                            onValueChange={(value: any) =>
                               handleStatusChange(quote.id, value)
                             }
                           >
