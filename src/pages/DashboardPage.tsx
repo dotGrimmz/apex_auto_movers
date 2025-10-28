@@ -9,15 +9,29 @@ import { api } from "../utils/api";
 import { signOut, getCurrentUser } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
 
-interface Quote {
+type Quote = {
   id: string;
-  pickup_location: string;
-  delivery_location: string;
-  vehicle: string;
-  transport_type: string;
-  status: string;
+  user_id: string | null;
+  name: string;
+  email: string;
+  phone?: string | null;
+  pickup: string;
+  delivery: string;
+  make: string;
+  model: string;
+  transport_type: "open" | "enclosed";
+  pickup_date?: string | null;
+  status:
+    | "new"
+    | "contacted"
+    | "booked"
+    | "completed"
+    | "quoted"
+    | "in_transit"
+    | "cancelled";
   created_at: string;
-}
+  updated_at: string;
+};
 
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
@@ -83,8 +97,7 @@ export function DashboardPage() {
             </div>
             <Button
               onClick={handleSignOut}
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
+              className="bg-[#00FFB0] text-[#0A1020] hover:bg-[#00FFB0]/90 border-none"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -172,45 +185,104 @@ export function DashboardPage() {
                 <Card className="bg-white/5 backdrop-blur-sm border-white/10 p-6 hover:bg-white/10 transition-all">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="flex-1 space-y-4">
-                      {/* Status Badge */}
-                      <Badge className={`${statusColors[quote.status]} border`}>
-                        {quote.status.replace("_", " ").toUpperCase()}
-                      </Badge>
-
-                      {/* Vehicle Info */}
-                      <div>
-                        <h3 className="text-xl text-white mb-1">
-                          {quote.vehicle}
-                        </h3>
-                        <p className="text-white/50 text-sm">
-                          {quote.transport_type === "open"
-                            ? "Open"
-                            : "Enclosed"}{" "}
-                          Transport
+                      {/* Status + Created */}
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          className={`${statusColors[quote.status]} border`}
+                        >
+                          {quote.status.replace("_", " ").toUpperCase()}
+                        </Badge>
+                        <p className="text-xs text-white/50">
+                          Created: {new Date(quote.created_at).toLocaleString()}
                         </p>
                       </div>
 
-                      {/* Route */}
-                      <div className="flex items-center space-x-3 text-white/70">
-                        <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
-                        <span className="text-sm">{quote.pickup}</span>
-                        <ArrowRight className="w-4 h-4 flex-shrink-0" />
-                        <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
-                        <span className="text-sm">{quote.delivery}</span>
-                      </div>
+                      {/* Responsive grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {/* Left column */}
+                        <div className="space-y-4">
+                          {/* Vehicle Info */}
+                          <div>
+                            <h3 className="text-xl text-white mb-1">
+                              {quote.make} {quote.model}
+                            </h3>
+                            <p className="text-white/50 text-sm">
+                              {quote.transport_type === "open"
+                                ? "Open"
+                                : "Enclosed"}{" "}
+                              Transport
+                            </p>
+                          </div>
 
-                      {/* Date */}
-                      <p className="text-white/50 text-sm">
-                        Requested:{" "}
-                        {new Date(quote.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </p>
+                          {/* Route */}
+                          <div className="flex items-center space-x-3 text-white/70">
+                            <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
+                            <span className="text-sm">{quote.pickup}</span>
+                            <ArrowRight className="w-4 h-4 flex-shrink-0" />
+                            <MapPin className="w-4 h-4 text-[#00FFB0] flex-shrink-0" />
+                            <span className="text-sm">{quote.delivery}</span>
+                          </div>
+
+                          {/* Details */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <p className="text-xs text-white/50">Make</p>
+                              <p className="text-sm text-white">{quote.make}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Model</p>
+                              <p className="text-sm text-white">{quote.model}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Pickup Date</p>
+                              <p className="text-sm text-white">
+                                {quote.pickup_date
+                                  ? new Date(quote.pickup_date).toLocaleDateString()
+                                  : "—"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right column */}
+                        <div className="space-y-4">
+                          {/* Customer */}
+                          <div className="grid grid-cols-1 gap-3">
+                            <div>
+                              <p className="text-xs text-white/50">Customer</p>
+                              <p className="text-sm text-white">{quote.name}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Email</p>
+                              <p className="text-sm text-white truncate">
+                                {quote.email}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Phone</p>
+                              <p className="text-sm text-white">
+                                {quote.phone || "—"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* IDs */}
+                          <div className="grid grid-cols-1 gap-3">
+                            <div>
+                              <p className="text-xs text-white/50">Quote ID</p>
+                              <p className="text-[11px] text-white/60 break-all">
+                                {quote.id}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">User ID</p>
+                              <p className="text-[11px] text-white/60 break-all">
+                                {quote.user_id || "—"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Card>

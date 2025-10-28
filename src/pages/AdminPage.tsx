@@ -66,7 +66,7 @@ export function AdminPage() {
     (async () => {
       try {
         const { data: profile } = await api.getProfile();
-        if (profile || profile.role !== "admin") {
+        if (!profile || profile.role !== "admin") {
           navigate("/login");
           return;
         }
@@ -161,8 +161,7 @@ export function AdminPage() {
             </div>
             <Button
               onClick={handleSignOut}
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
+              className="bg-[#00FFB0] text-[#0A1020] hover:bg-[#00FFB0]/90 border-none"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
