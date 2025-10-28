@@ -1,31 +1,25 @@
-import { projectId, publicAnonKey } from "./supabase/info";
 import { createClient } from "./supabase/client";
 
-const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-f0a9c31f`;
-console.log(API_BASE_URL, "api base url");
+const API_BASE_URL = "/api"; // same-origin Next.js API
 
 async function getAuthToken(): Promise<string> {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return session?.access_token || publicAnonKey;
+  return session?.access_token || null as any;
 }
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const token = await getAuthToken();
   console.log(token, "token");
   console.log(`${API_BASE_URL}${endpoint}`, "endpoint");
-  console.log(options, "headers");
-
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers":
-        "authorization, x-client-info, apikey, content-type",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
     },
   });
 
@@ -42,7 +36,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 export const api = {
   // Auth
   signup: (email: string, password: string, name: string) =>
-    apiRequest("/signup", {
+    apiRequest("/auth/signup", {
       method: "POST",
       body: JSON.stringify({ email, password, name }),
     }),
