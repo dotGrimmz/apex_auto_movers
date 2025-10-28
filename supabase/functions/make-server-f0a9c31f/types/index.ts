@@ -1,4 +1,4 @@
-export type Role = 'user' | 'admin';
+export type Role = "user" | "admin";
 
 export interface SignupBody {
   email: string;
@@ -14,7 +14,6 @@ export interface QuoteBody {
   delivery: string;
   make: string;
   model: string;
-  transport_type: 'open' | 'enclosed';
+  transport_type: "open" | "enclosed";
   pickup_date?: string | null;
 }
-

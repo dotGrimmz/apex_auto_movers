@@ -24,7 +24,7 @@ Since the first user needs to be an admin, you'll need to manually upgrade your 
 **Option A: Use the browser console** (on the Dashboard or any logged-in page):
 ```javascript
 // Get your user ID
-const user = await (await fetch('https://YOUR_PROJECT_ID.supabase.co/functions/v1/make-server-f0a9c31f/profile', {
+const user = await (await fetch('/api/profile', {
   headers: { 'Authorization': 'Bearer ' + (await supabase.auth.getSession()).data.session.access_token }
 })).json();
 
@@ -129,7 +129,7 @@ The application uses Supabase's built-in KV store with the following key pattern
 
 ### API Endpoints
 
-All endpoints are prefixed with `/make-server-f0a9c31f/`:
+All endpoints are served under the same-origin `/api` prefix:
 
 - `POST /signup` - Create new user account
 - `POST /quote` - Submit a quote (authenticated or guest)
