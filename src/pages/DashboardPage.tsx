@@ -21,7 +21,13 @@ type Quote = {
   model: string;
   transport_type: "open" | "enclosed";
   pickup_date?: string | null;
-  status: "new" | "contacted" | "booked" | "completed" | "in_transit" | "cancelled";
+  status:
+    | "new"
+    | "contacted"
+    | "booked"
+    | "completed"
+    | "in_transit"
+    | "cancelled";
   created_at: string;
   updated_at: string;
 };
@@ -39,6 +45,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const { navigate } = useRouter();
 
   useEffect(() => {
@@ -50,6 +57,9 @@ export function DashboardPage() {
       const user = await getCurrentUser();
       if (user?.user_metadata?.name) {
         setUserName(user.user_metadata.name);
+      }
+      if (user?.email) {
+        setUserEmail(user.email);
       }
 
       console.log({ user });
@@ -78,7 +88,7 @@ export function DashboardPage() {
       {/* Header */}
       <header className="bg-[#0A1020] border-b border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-[#00FFB0] rounded-lg flex items-center justify-center">
                 <span className="text-[#0A1020] font-bold text-xl">A</span>
@@ -87,6 +97,11 @@ export function DashboardPage() {
                 Apex Auto Movers
               </span>
             </div>
+            {userEmail && (
+              <p className="text-white/50 text-sm hidden sm:block flex-1 text-right">
+                {userEmail}
+              </p>
+            )}
             <Button
               onClick={handleSignOut}
               className="bg-[#00FFB0] text-[#0A1020] hover:bg-[#00FFB0]/90 border-none"
@@ -223,13 +238,19 @@ export function DashboardPage() {
                             </div>
                             <div>
                               <p className="text-xs text-white/50">Model</p>
-                              <p className="text-sm text-white">{quote.model}</p>
+                              <p className="text-sm text-white">
+                                {quote.model}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-white/50">Pickup Date</p>
+                              <p className="text-xs text-white/50">
+                                Pickup Date
+                              </p>
                               <p className="text-sm text-white">
                                 {quote.pickup_date
-                                  ? new Date(quote.pickup_date).toLocaleDateString()
+                                  ? new Date(
+                                      quote.pickup_date
+                                    ).toLocaleDateString()
                                   : "—"}
                               </p>
                             </div>

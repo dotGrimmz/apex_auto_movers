@@ -14,6 +14,7 @@ import { Card } from "./ui/card";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { api } from "../utils/api";
 import { useRouter } from "./RouterContext";
+import { getCurrentUser } from "../utils/auth";
 
 export function QuoteForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -39,6 +40,7 @@ export function QuoteForm() {
     setError("");
 
     try {
+      const currentUser = await getCurrentUser();
       // Build payload matching API typings
       const payload = {
         name: formData.name,
@@ -52,6 +54,10 @@ export function QuoteForm() {
         pickup_date: formData.pickup_date || undefined,
       };
       await api.submitQuote(payload);
+      if (currentUser) {
+        navigate("/dashboard");
+        return;
+      }
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
