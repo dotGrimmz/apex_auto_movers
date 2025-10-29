@@ -1,6 +1,6 @@
 import { createClient } from "./supabase/client";
 
-const API_BASE_URL = "/api"; // same-origin Express API via Vite proxy
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") || "/api";
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const supabase = createClient();
