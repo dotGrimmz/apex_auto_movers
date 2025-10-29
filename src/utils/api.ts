@@ -61,6 +61,30 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
+  updateQuote: (
+    quoteId: string,
+    payload: Partial<{
+      status: string;
+      quote_amount: number | null;
+      admin_notes: string | null;
+      pickup_date: string | null;
+      estimated_delivery_date: string | null;
+    }>
+  ) =>
+    apiRequest(`/quotes/${quoteId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  sendQuoteEmail: (
+    quoteId: string,
+    payload: { quote_amount: number; message?: string }
+  ) =>
+    apiRequest(`/quotes/${quoteId}/send`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   // Newsletter
   subscribeNewsletter: (email: string) =>
     apiRequest("/newsletter", {

@@ -20,27 +20,17 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Skeleton } from "../components/ui/skeleton";
-import { LogOut, Search, Filter, ArrowRight, AlertCircle } from "lucide-react";
+import { LogOut, Search, Filter, ArrowRight, AlertCircle, Eye } from "lucide-react";
 import { api } from "../utils/api";
 import { signOut } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
+import type { Quote, QuoteStatus } from "../types/quote";
+import { QuoteDetailsDrawer } from "../components/QuoteDetailsDrawer";
 
-interface Quote {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  pickup_location: string;
-  delivery_location: string;
-  vehicle: string;
-  transport_type: string;
-  status: string;
-  created_at: string;
-}
-
-const statusOptions = [
+const statusOptions: Array<{ value: QuoteStatus; label: string }> = [
   { value: "new", label: "New" },
   { value: "contacted", label: "Contacted" },
+  { value: "quoted", label: "Quoted" },
   { value: "booked", label: "Booked" },
   { value: "completed", label: "Completed" },
 ];
@@ -48,6 +38,7 @@ const statusOptions = [
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
   contacted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+  quoted: "bg-amber-500/20 text-amber-400 border-amber-500/50",
   booked: "bg-green-500/20 text-green-400 border-green-500/50",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
 };
@@ -59,6 +50,10 @@ export function AdminPage() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sendingQuote, setSendingQuote] = useState(false);
+  const [savingQuote, setSavingQuote] = useState(false);
   const { navigate } = useRouter();
 
   useEffect(() => {
@@ -103,9 +98,9 @@ export function AdminPage() {
         (q) =>
           q.name.toLowerCase().includes(term) ||
           q.email.toLowerCase().includes(term) ||
-          q.vehicle.toLowerCase().includes(term) ||
-          q.pickup_location.toLowerCase().includes(term) ||
-          q.delivery_location.toLowerCase().includes(term)
+          `${q.make} ${q.model}`.toLowerCase().includes(term) ||
+          q.pickup.toLowerCase().includes(term) ||
+          q.delivery.toLowerCase().includes(term)
       );
     }
 
@@ -117,7 +112,7 @@ export function AdminPage() {
     setFilteredQuotes(filtered);
   }
 
-  async function handleStatusChange(quoteId: string, newStatus: string) {
+  async function handleStatusChange(quoteId: string, newStatus: QuoteStatus) {
     try {
       await api.updateQuoteStatus(quoteId, newStatus);
 
@@ -128,6 +123,61 @@ export function AdminPage() {
     } catch (err: any) {
       console.error("Error updating status:", err);
       alert("Failed to update quote status");
+    }
+  }
+
+  async function handleSendQuote(
+    quoteId: string,
+    payload: { quote_amount: number; message?: string }
+  ) {
+    try {
+      setSendingQuote(true);
+      const { data: updatedQuote } = await api.sendQuoteEmail(quoteId, payload);
+      setQuotes((prev) =>
+        prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
+      );
+      setSelectedQuote((current) =>
+        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+      );
+      setDrawerOpen(false);
+    } catch (err: any) {
+      console.error("Error sending quote email:", err);
+      alert(err.message || "Failed to send quote email");
+    } finally {
+      setSendingQuote(false);
+    }
+  }
+
+  async function handleSaveQuoteDetails(
+    quoteId: string,
+    payload: Partial<Pick<Quote, "quote_amount" | "admin_notes">>
+  ) {
+    try {
+      setSavingQuote(true);
+      const { data: updatedQuote } = await api.updateQuote(quoteId, payload);
+      setQuotes((prev) =>
+        prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
+      );
+      setSelectedQuote((current) =>
+        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+      );
+    } catch (err: any) {
+      console.error("Error saving quote details:", err);
+      alert(err.message || "Failed to save quote details");
+    } finally {
+      setSavingQuote(false);
+    }
+  }
+
+  function handleOpenQuoteDetails(quote: Quote) {
+    setSelectedQuote(quote);
+    setDrawerOpen(true);
+  }
+
+  function handleDrawerToggle(open: boolean) {
+    setDrawerOpen(open);
+    if (!open) {
+      setSelectedQuote(null);
     }
   }
 
@@ -293,16 +343,18 @@ export function AdminPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-white">{quote.vehicle}</div>
+                          <div className="text-white">
+                            {`${quote.make} ${quote.model}`.trim()}
+                          </div>
                           <div className="text-white/50 text-sm capitalize">
                             {quote.transport_type}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2 text-white/70 text-sm">
-                            <span>{quote.pickup_location}</span>
+                            <span>{quote.pickup}</span>
                             <ArrowRight className="w-3 h-3 flex-shrink-0" />
-                            <span>{quote.delivery_location}</span>
+                            <span>{quote.delivery}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -320,7 +372,7 @@ export function AdminPage() {
                         <TableCell>
                           <Select
                             value={quote.status}
-                            onValueChange={(value: any) =>
+                            onValueChange={(value: QuoteStatus) =>
                               handleStatusChange(quote.id, value)
                             }
                           >
@@ -338,6 +390,15 @@ export function AdminPage() {
                               ))}
                             </SelectContent>
                           </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="mt-2 text-white/80 hover:text-white hover:bg-white/10"
+                            onClick={() => handleOpenQuoteDetails(quote)}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
@@ -348,6 +409,15 @@ export function AdminPage() {
           </Card>
         )}
       </main>
+      <QuoteDetailsDrawer
+        open={drawerOpen}
+        quote={selectedQuote}
+        onOpenChange={handleDrawerToggle}
+        onSendQuote={handleSendQuote}
+        onSaveDetails={handleSaveQuoteDetails}
+        sending={sendingQuote}
+        saving={savingQuote}
+      />
     </div>
   );
 }
