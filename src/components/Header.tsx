@@ -88,8 +88,7 @@ export function Header() {
             ) : (
               <Button
                 onClick={() => navigate("/login")}
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10"
+                className="bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90"
               >
                 Sign In
               </Button>
@@ -150,8 +149,7 @@ export function Header() {
                     navigate("/login");
                     setIsMobileMenuOpen(false);
                   }}
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 w-full"
+                  className="bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 w-full"
                 >
                   Sign In
                 </Button>

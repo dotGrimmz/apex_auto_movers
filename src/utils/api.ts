@@ -1,35 +1,24 @@
-import { projectId, publicAnonKey } from "./supabase/info";
 import { createClient } from "./supabase/client";
 
-const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-f0a9c31f`;
-console.log(API_BASE_URL, "api base url");
+const API_BASE_URL = "/api"; // same-origin Express API via Vite proxy
 
-async function getAuthToken(): Promise<string> {
+export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return session?.access_token || publicAnonKey;
-}
-
-export async function apiRequest(endpoint: string, options: RequestInit = {}) {
-  const token = await getAuthToken();
-  console.log(token, "token");
-  console.log(`${API_BASE_URL}${endpoint}`, "endpoint");
-  console.log(options.headers, "headers");
+  const token = session?.access_token;
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
     },
   });
 
-  console.log(response, "response");
   const data = await response.json();
-
   if (!response.ok) {
     throw new Error(data.error || "API request failed");
   }
@@ -40,7 +29,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 export const api = {
   // Auth
   signup: (email: string, password: string, name: string) =>
-    apiRequest("/signup", {
+    apiRequest("/auth/signup", {
       method: "POST",
       body: JSON.stringify({ email, password, name }),
     }),
@@ -70,6 +59,30 @@ export const api = {
     apiRequest(`/quotes/${quoteId}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
+    }),
+
+  updateQuote: (
+    quoteId: string,
+    payload: Partial<{
+      status: string;
+      quote_amount: number | null;
+      admin_notes: string | null;
+      pickup_date: string | null;
+      estimated_delivery_date: string | null;
+    }>
+  ) =>
+    apiRequest(`/quotes/${quoteId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  sendQuoteEmail: (
+    quoteId: string,
+    payload: { quote_amount: number; message?: string }
+  ) =>
+    apiRequest(`/quotes/${quoteId}/send`, {
+      method: "POST",
+      body: JSON.stringify(payload),
     }),
 
   // Newsletter

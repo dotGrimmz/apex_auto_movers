@@ -82,7 +82,7 @@ A modern, full-stack web application for managing vehicle transport quotes with 
 - **KV Store** - Database (using Supabase's built-in key-value store)
 
 ### API Endpoints
-All endpoints use prefix `/make-server-f0a9c31f/`:
+All endpoints are now same-origin under `/api`:
 - `POST /signup` - User registration
 - `POST /quote` - Submit transport quote
 - `GET /quotes/my` - Get user's quotes

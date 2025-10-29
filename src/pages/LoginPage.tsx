@@ -6,6 +6,7 @@ import { Label } from "../components/ui/label";
 import { Card } from "../components/ui/card";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { signIn } from "../utils/auth";
+import { api } from "../utils/api";
 import { useRouter } from "../components/RouterContext";
 
 export function LoginPage() {
@@ -22,6 +23,15 @@ export function LoginPage() {
 
     try {
       await signIn(email, password);
+      try {
+        const { data: profile } = await api.getProfile();
+        if (profile?.role === "admin") {
+          navigate("/admin");
+          return;
+        }
+      } catch (profileErr) {
+        console.warn("Profile lookup failed, defaulting to dashboard", profileErr);
+      }
       navigate("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);

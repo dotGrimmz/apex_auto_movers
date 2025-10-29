@@ -1,0 +1,258 @@
+.quote-drawer__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 25, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.quote-drawer {
+  background: #0a1020;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 768px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.quote-drawer__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+  gap: 1rem;
+}
+
+.quote-drawer__title {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.quote-drawer__subtitle {
+  margin: 0.25rem 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.quote-drawer__close {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1.75rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
+.quote-drawer__close:hover {
+  color: #00ffb0;
+}
+
+.quote-drawer__body {
+  padding: 0 1.5rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quote-drawer__section-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.quote-drawer__card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quote-drawer__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.quote-drawer__customer-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.quote-drawer__status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.quote-drawer__status--new {
+  border-color: rgba(0, 128, 255, 0.4);
+  background: rgba(0, 128, 255, 0.1);
+  color: #74b9ff;
+}
+
+.quote-drawer__status--contacted {
+  border-color: rgba(155, 89, 182, 0.4);
+  background: rgba(155, 89, 182, 0.1);
+  color: #d2a4ff;
+}
+
+.quote-drawer__status--quoted {
+  border-color: rgba(255, 171, 0, 0.4);
+  background: rgba(255, 171, 0, 0.1);
+  color: #ffd54f;
+}
+
+.quote-drawer__status--booked {
+  border-color: rgba(39, 174, 96, 0.4);
+  background: rgba(39, 174, 96, 0.1);
+  color: #7ee2a1;
+}
+
+.quote-drawer__status--completed {
+  border-color: rgba(56, 142, 88, 0.4);
+  background: rgba(56, 142, 88, 0.1);
+  color: #9be7c4;
+}
+
+.quote-drawer__muted {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.quote-drawer__meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.quote-drawer__meta--success {
+  color: #3fe0b5;
+}
+
+.quote-drawer__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.35rem;
+}
+
+.quote-drawer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.quote-drawer__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quote-drawer__input,
+.quote-drawer__textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(10, 16, 32, 0.75);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.quote-drawer__input:focus,
+.quote-drawer__textarea:focus {
+  outline: 2px solid #00ffb0;
+  border-color: #00ffb0;
+}
+
+.quote-drawer__textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.quote-drawer__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quote-drawer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.quote-drawer__btn {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #ffffff;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.quote-drawer__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.quote-drawer__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quote-drawer__btn--primary {
+  background: #00ffb0;
+  border-color: #00ffb0;
+  color: #041227;
+}
+
+.quote-drawer__btn--primary:hover:not(:disabled) {
+  background: #17ffb8;
+}
+
+@media (max-width: 640px) {
+  .quote-drawer {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .quote-drawer__overlay {
+    padding: 0;
+  }
+
+  .quote-drawer__body {
+    padding: 0 1rem 1rem;
+  }
+
+  .quote-drawer__footer {
+    padding: 1rem;
+  }
+}

@@ -21,7 +21,7 @@ export function AdminSetupPage() {
     setError("");
 
     try {
-      const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-f0a9c31f`;
+      const API_BASE_URL = `/api`;
       
       // This is a temporary setup endpoint - you would need to add this to your server
       // For now, we'll show instructions to the user
