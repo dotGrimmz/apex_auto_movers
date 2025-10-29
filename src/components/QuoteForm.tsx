@@ -3,11 +3,18 @@ import { motion } from "motion/react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Card } from "./ui/card";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { api } from "../utils/api";
 import { useRouter } from "./RouterContext";
+import { getCurrentUser } from "../utils/auth";
 
 export function QuoteForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -18,7 +25,7 @@ export function QuoteForm() {
     delivery: "",
     make: "",
     model: "",
-    transport_type: "" as '' | 'open' | 'enclosed',
+    transport_type: "" as "" | "open" | "enclosed",
     pickup_date: "",
     name: "",
     email: "",
@@ -33,6 +40,7 @@ export function QuoteForm() {
     setError("");
 
     try {
+      const currentUser = await getCurrentUser();
       // Build payload matching API typings
       const payload = {
         name: formData.name,
@@ -42,10 +50,14 @@ export function QuoteForm() {
         delivery: formData.delivery,
         make: formData.make,
         model: formData.model,
-        transport_type: formData.transport_type as 'open' | 'enclosed',
+        transport_type: formData.transport_type as "open" | "enclosed",
         pickup_date: formData.pickup_date || undefined,
       };
       await api.submitQuote(payload);
+      if (currentUser) {
+        navigate("/dashboard");
+        return;
+      }
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
@@ -86,7 +98,8 @@ export function QuoteForm() {
           </motion.div>
           <h3 className="text-2xl text-[#0A1020]">Quote Request Received!</h3>
           <p className="text-gray-600">
-            Our team will contact you within 30 minutes with your personalized quote.
+            Our team will contact you within 30 minutes with your personalized
+            quote.
           </p>
           <Button
             onClick={() => navigate("/login")}
@@ -100,11 +113,18 @@ export function QuoteForm() {
   }
 
   return (
-    <Card id="quote-form" className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+    <Card
+      id="quote-form"
+      className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
+    >
       <div className="space-y-6">
         <div className="space-y-2">
-          <h2 className="text-2xl sm:text-3xl text-[#0A1020]">Get Your Free Quote</h2>
-          <p className="text-gray-600">Fill out the form and get an instant estimate</p>
+          <h2 className="text-2xl sm:text-3xl text-[#0A1020]">
+            Get Your Free Quote
+          </h2>
+          <p className="text-gray-600">
+            Fill out the form and get an instant estimate
+          </p>
         </div>
 
         {error && (
@@ -129,7 +149,9 @@ export function QuoteForm() {
               placeholder="City, State or ZIP"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
               value={formData.pickup}
-              onChange={(e) => setFormData({ ...formData, pickup: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, pickup: e.target.value })
+              }
               required
             />
           </div>
@@ -144,7 +166,9 @@ export function QuoteForm() {
               placeholder="City, State or ZIP"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
               value={formData.delivery}
-              onChange={(e) => setFormData({ ...formData, delivery: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, delivery: e.target.value })
+              }
               required
             />
           </div>
@@ -160,7 +184,9 @@ export function QuoteForm() {
                 placeholder="e.g., Toyota"
                 className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
                 value={formData.make}
-                onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, make: e.target.value })
+                }
                 required
               />
             </div>
@@ -173,7 +199,9 @@ export function QuoteForm() {
                 placeholder="e.g., Camry"
                 className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
                 value={formData.model}
-                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, model: e.target.value })
+                }
                 required
               />
             </div>
@@ -184,10 +212,15 @@ export function QuoteForm() {
             <Label htmlFor="transport-type" className="text-[#0A1020]">
               Transport Type
             </Label>
-            <Select 
+            <Select
               required
               value={formData.transport_type}
-              onValueChange={(value) => setFormData({ ...formData, transport_type: value as 'open' | 'enclosed' })}
+              onValueChange={(value: string) =>
+                setFormData({
+                  ...formData,
+                  transport_type: value as "open" | "enclosed",
+                })
+              }
             >
               <SelectTrigger className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]">
                 <SelectValue placeholder="Select transport type" />
@@ -209,7 +242,9 @@ export function QuoteForm() {
               type="date"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
               value={formData.pickup_date}
-              onChange={(e) => setFormData({ ...formData, pickup_date: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, pickup_date: e.target.value })
+              }
             />
           </div>
 
@@ -223,7 +258,9 @@ export function QuoteForm() {
               placeholder="John Doe"
               className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -240,7 +277,9 @@ export function QuoteForm() {
                 placeholder="john@example.com"
                 className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
               />
             </div>
@@ -254,7 +293,9 @@ export function QuoteForm() {
                 placeholder="(555) 123-4567"
                 className="border-gray-300 focus:border-[#00FFB0] focus:ring-[#00FFB0]"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 required
               />
             </div>

@@ -1,9 +1,4 @@
-export type QuoteStatus =
-  | "new"
-  | "contacted"
-  | "quoted"
-  | "booked"
-  | "completed";
+export type QuoteStatus = "new" | "contacted" | "booked" | "completed";
 
 export interface Quote {
   id: string;
@@ -32,4 +27,3 @@ export interface QuoteEmailPayload {
   quote_amount: number;
   message?: string;
 }
-

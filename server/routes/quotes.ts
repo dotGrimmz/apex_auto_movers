@@ -169,7 +169,7 @@ router.post("/:id/send", async (req, res) => {
     .from("quotes")
     .update({
       quote_amount: quoteAmount,
-      status: "quoted",
+      status: "contacted",
       email_sent_at: new Date().toISOString(),
       admin_notes: message ?? quote.admin_notes,
     })

@@ -6,6 +6,7 @@ import { SignupPage } from "./pages/SignupPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AdminPage } from "./pages/AdminPage";
 import { AdminSetupPage } from "./pages/AdminSetupPage";
+import { Toaster } from "./components/ui/sonner";
 
 function Router() {
   const { currentPath } = useRouter();
@@ -45,6 +46,7 @@ export default function App() {
   return (
     <RouterProvider>
       <Router />
+      <Toaster />
     </RouterProvider>
   );
 }

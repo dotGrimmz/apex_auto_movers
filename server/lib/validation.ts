@@ -18,8 +18,8 @@ export function isQuoteBody(b: any): b is QuoteBody {
   return b && typeof b.name==='string' && typeof b.email==='string' && typeof b.pickup==='string' && typeof b.delivery==='string' && typeof b.make==='string' && typeof b.model==='string' && (b.transport_type==='open' || b.transport_type==='enclosed');
 }
 
-export function isValidStatus(s: any): s is 'new'|'contacted'|'quoted'|'booked'|'completed' {
-  return ['new','contacted','quoted','booked','completed'].includes(s);
+export function isValidStatus(s: any): s is 'new'|'contacted'|'booked'|'completed' {
+  return ['new','contacted','booked','completed'].includes(s);
 }
 
 export function isQuoteUpdateBody(

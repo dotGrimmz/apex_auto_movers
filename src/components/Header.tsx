@@ -9,6 +9,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
   const { navigate } = useRouter();
 
   useEffect(() => {
@@ -16,18 +17,18 @@ export function Header() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-    
-    // Check login status
     checkLoginStatus();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   async function checkLoginStatus() {
     try {
       const user = await getCurrentUser();
       setIsLoggedIn(!!user);
+      setUserEmail(user?.email ?? "");
     } catch {
       setIsLoggedIn(false);
+      setUserEmail("");
     }
   }
 
@@ -42,7 +43,9 @@ export function Header() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-[#0A1020]/95 backdrop-blur-lg shadow-lg" : "bg-transparent"
+        isScrolled
+          ? "bg-[#0A1020]/95 backdrop-blur-lg shadow-lg"
+          : "bg-transparent"
       }`}
     >
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,27 +67,41 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#home" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+            <a
+              href="#home"
+              className="text-white/80 hover:text-[#00FFB0] transition-colors"
+            >
               Home
             </a>
-            <a href="#services" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+            <a
+              href="#services"
+              className="text-white/80 hover:text-[#00FFB0] transition-colors"
+            >
               Services
             </a>
-            <a href="#about" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+            <a
+              href="#about"
+              className="text-white/80 hover:text-[#00FFB0] transition-colors"
+            >
               About
             </a>
-            <a href="#contact" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+            <a
+              href="#contact"
+              className="text-white/80 hover:text-[#00FFB0] transition-colors"
+            >
               Contact
             </a>
             {isLoggedIn ? (
-              <Button
-                onClick={() => navigate("/dashboard")}
-                variant="outline"
-                className="border-[#00FFB0]/50 text-[#00FFB0] hover:bg-[#00FFB0]/10"
-              >
-                <User className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  variant="outline"
+                  className="border-[#00FFB0]/50 text-[#00FFB0] hover:bg-[#00FFB0]/10"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  {userEmail.split("@")[0]}
+                </Button>
+              </div>
             ) : (
               <Button
                 onClick={() => navigate("/login")}
@@ -119,30 +136,45 @@ export function Header() {
             className="md:hidden pb-4"
           >
             <nav className="flex flex-col space-y-4">
-              <a href="#home" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+              <a
+                href="#home"
+                className="text-white/80 hover:text-[#00FFB0] transition-colors"
+              >
                 Home
               </a>
-              <a href="#services" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+              <a
+                href="#services"
+                className="text-white/80 hover:text-[#00FFB0] transition-colors"
+              >
                 Services
               </a>
-              <a href="#about" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+              <a
+                href="#about"
+                className="text-white/80 hover:text-[#00FFB0] transition-colors"
+              >
                 About
               </a>
-              <a href="#contact" className="text-white/80 hover:text-[#00FFB0] transition-colors">
+              <a
+                href="#contact"
+                className="text-white/80 hover:text-[#00FFB0] transition-colors"
+              >
                 Contact
               </a>
               {isLoggedIn ? (
-                <Button
-                  onClick={() => {
-                    navigate("/dashboard");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  variant="outline"
-                  className="border-[#00FFB0]/50 text-[#00FFB0] hover:bg-[#00FFB0]/10 w-full"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
+                <div className="flex flex-col space-y-3">
+                  <p className="text-white/70 text-sm">{userEmail}</p>
+                  <Button
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    variant="outline"
+                    className="border-[#00FFB0]/50 text-[#00FFB0] hover:bg-[#00FFB0]/10 w-full"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </div>
               ) : (
                 <Button
                   onClick={() => {

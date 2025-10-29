@@ -97,36 +97,37 @@ export function QuoteDetailsDrawer({
       }}
     >
       <aside className="quote-drawer" role="document">
-        <header className="quote-drawer__header">
-          <div>
-            <h2 id="quote-drawer-title" className="quote-drawer__title">
-              Quote Details {vehicle ? `– ${vehicle}` : ""}
-            </h2>
-            <p
-              id="quote-drawer-description"
-              className="quote-drawer__subtitle"
-            >
-              Review quote information, capture an amount, and send a
-              confirmation email without leaving the admin dashboard.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="quote-drawer__close"
-            onClick={() => onOpenChange(false)}
-            aria-label="Close details"
-          >
-            ×
-          </button>
-        </header>
-
         <main className="quote-drawer__body">
+          <header className="quote-drawer__header">
+            <div>
+              <h2 id="quote-drawer-title" className="quote-drawer__title">
+                Quote Details {vehicle ? `– ${vehicle}` : ""}
+              </h2>
+              <p
+                id="quote-drawer-description"
+                className="quote-drawer__subtitle"
+              >
+                Review quote information, capture an amount, and send a
+                confirmation email without leaving the admin dashboard.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="quote-drawer__close"
+              onClick={() => onOpenChange(false)}
+              aria-label="Close details"
+            >
+              ×
+            </button>
+          </header>
           <section className="quote-drawer__section">
             <h3 className="quote-drawer__section-title">Customer</h3>
             <article className="quote-drawer__card">
               <div className="quote-drawer__card-header">
                 <p className="quote-drawer__customer-name">{quote.name}</p>
-                <span className={`quote-drawer__status quote-drawer__status--${quote.status}`}>
+                <span
+                  className={`quote-drawer__status quote-drawer__status--${quote.status}`}
+                >
                   {quote.status.toUpperCase()}
                 </span>
               </div>
@@ -234,32 +235,31 @@ export function QuoteDetailsDrawer({
               />
             </article>
           </section>
+          <footer className="quote-drawer__footer">
+            <p className="quote-drawer__meta">
+              Amounts are saved immediately when you send the quote. Use “Save
+              details” to persist notes without emailing the customer.
+            </p>
+            <div className="quote-drawer__actions">
+              <button
+                type="button"
+                className="quote-drawer__btn"
+                onClick={handleSaveDetails}
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "Save details"}
+              </button>
+              <button
+                type="button"
+                className="quote-drawer__btn quote-drawer__btn--primary"
+                onClick={handleSendQuote}
+                disabled={sending}
+              >
+                {sending ? "Sending…" : "Send quote email"}
+              </button>
+            </div>
+          </footer>
         </main>
-
-        <footer className="quote-drawer__footer">
-          <p className="quote-drawer__meta">
-            Amounts are saved immediately when you send the quote. Use “Save
-            details” to persist notes without emailing the customer.
-          </p>
-          <div className="quote-drawer__actions">
-            <button
-              type="button"
-              className="quote-drawer__btn"
-              onClick={handleSaveDetails}
-              disabled={saving}
-            >
-              {saving ? "Saving…" : "Save details"}
-            </button>
-            <button
-              type="button"
-              className="quote-drawer__btn quote-drawer__btn--primary"
-              onClick={handleSendQuote}
-              disabled={sending}
-            >
-              {sending ? "Sending…" : "Send quote email"}
-            </button>
-          </div>
-        </footer>
       </aside>
     </div>,
     document.body

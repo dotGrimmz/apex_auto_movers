@@ -26,8 +26,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 1.5rem 1.5rem 1rem;
+  padding: .5rem .5rem 1rem;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
 .quote-drawer__title {
@@ -71,6 +72,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.6);
+  
 }
 
 .quote-drawer__card {
@@ -87,7 +89,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: .2rem;
 }
 
 .quote-drawer__customer-name {
@@ -114,12 +116,6 @@
   border-color: rgba(155, 89, 182, 0.4);
   background: rgba(155, 89, 182, 0.1);
   color: #d2a4ff;
-}
-
-.quote-drawer__status--quoted {
-  border-color: rgba(255, 171, 0, 0.4);
-  background: rgba(255, 171, 0, 0.1);
-  color: #ffd54f;
 }
 
 .quote-drawer__status--booked {
@@ -184,7 +180,6 @@
 
 .quote-drawer__input:focus,
 .quote-drawer__textarea:focus {
-  outline: 2px solid #00ffb0;
   border-color: #00ffb0;
 }
 

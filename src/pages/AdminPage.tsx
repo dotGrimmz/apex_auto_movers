@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -20,17 +20,24 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Skeleton } from "../components/ui/skeleton";
-import { LogOut, Search, Filter, ArrowRight, AlertCircle, Eye } from "lucide-react";
+import {
+  LogOut,
+  Search,
+  Filter,
+  ArrowRight,
+  AlertCircle,
+  Eye,
+} from "lucide-react";
 import { api } from "../utils/api";
 import { signOut } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
 import type { Quote, QuoteStatus } from "../types/quote";
 import { QuoteDetailsDrawer } from "../components/QuoteDetailsDrawer";
+import { toast } from "sonner";
 
 const statusOptions: Array<{ value: QuoteStatus; label: string }> = [
   { value: "new", label: "New" },
   { value: "contacted", label: "Contacted" },
-  { value: "quoted", label: "Quoted" },
   { value: "booked", label: "Booked" },
   { value: "completed", label: "Completed" },
 ];
@@ -38,7 +45,6 @@ const statusOptions: Array<{ value: QuoteStatus; label: string }> = [
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
   contacted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
-  quoted: "bg-amber-500/20 text-amber-400 border-amber-500/50",
   booked: "bg-green-500/20 text-green-400 border-green-500/50",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
 };
@@ -54,7 +60,11 @@ export function AdminPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sendingQuote, setSendingQuote] = useState(false);
   const [savingQuote, setSavingQuote] = useState(false);
+  const [tableBusy, setTableBusy] = useState(false);
+  const [mutatingQuoteId, setMutatingQuoteId] = useState<string | null>(null);
+  const [adminEmail, setAdminEmail] = useState("");
   const { navigate } = useRouter();
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
 
   useEffect(() => {
     // Ensure only admins can access
@@ -64,6 +74,9 @@ export function AdminPage() {
         if (!profile || profile.role !== "admin") {
           navigate("/login");
           return;
+        }
+        if (profile?.email) {
+          setAdminEmail(profile.email);
         }
         loadQuotes();
       } catch (_) {
@@ -78,13 +91,16 @@ export function AdminPage() {
 
   async function loadQuotes() {
     try {
+      setTableBusy(true);
       const { data: allQuotes } = await api.getAllQuotes();
       setQuotes(allQuotes);
     } catch (err: any) {
       console.error("Error loading quotes:", err);
       setError(err.message || "Failed to load quotes");
+      toast.error(err.message || "Failed to load quotes");
     } finally {
       setLoading(false);
+      setTableBusy(false);
     }
   }
 
@@ -114,15 +130,27 @@ export function AdminPage() {
 
   async function handleStatusChange(quoteId: string, newStatus: QuoteStatus) {
     try {
+      setTableBusy(true);
+      setMutatingQuoteId(quoteId);
       await api.updateQuoteStatus(quoteId, newStatus);
 
       // Update local state
       setQuotes((prev) =>
         prev.map((q) => (q.id === quoteId ? { ...q, status: newStatus } : q))
       );
+      toast.success(`Status updated to ${newStatus.toUpperCase()}`);
+      if (newStatus === "completed") {
+        requestAnimationFrame(() => {
+          const targetRow = rowRefs.current[quoteId];
+          targetRow?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
     } catch (err: any) {
       console.error("Error updating status:", err);
-      alert("Failed to update quote status");
+      toast.error(err.message || "Failed to update quote status");
+    } finally {
+      setTableBusy(false);
+      setMutatingQuoteId(null);
     }
   }
 
@@ -132,19 +160,24 @@ export function AdminPage() {
   ) {
     try {
       setSendingQuote(true);
+      setTableBusy(true);
       const { data: updatedQuote } = await api.sendQuoteEmail(quoteId, payload);
       setQuotes((prev) =>
         prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
       );
       setSelectedQuote((current) =>
-        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+        current && current.id === quoteId
+          ? { ...current, ...updatedQuote }
+          : current
       );
       setDrawerOpen(false);
+      toast.success("Quote email sent to customer");
     } catch (err: any) {
       console.error("Error sending quote email:", err);
-      alert(err.message || "Failed to send quote email");
+      toast.error(err.message || "Failed to send quote email");
     } finally {
       setSendingQuote(false);
+      setTableBusy(false);
     }
   }
 
@@ -154,18 +187,23 @@ export function AdminPage() {
   ) {
     try {
       setSavingQuote(true);
+      setTableBusy(true);
       const { data: updatedQuote } = await api.updateQuote(quoteId, payload);
       setQuotes((prev) =>
         prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
       );
       setSelectedQuote((current) =>
-        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+        current && current.id === quoteId
+          ? { ...current, ...updatedQuote }
+          : current
       );
+      toast.success("Quote details saved");
     } catch (err: any) {
       console.error("Error saving quote details:", err);
-      alert(err.message || "Failed to save quote details");
+      toast.error(err.message || "Failed to save quote details");
     } finally {
       setSavingQuote(false);
+      setTableBusy(false);
     }
   }
 
@@ -187,15 +225,25 @@ export function AdminPage() {
       navigate("/");
     } catch (err) {
       console.error("Sign out error:", err);
+      toast.error("Failed to sign out");
     }
   }
+
+  const summary = useMemo(() => {
+    const total = quotes.length;
+    const newQuotes = quotes.filter((q) => q.status === "new").length;
+    const contacted = quotes.filter((q) => q.status === "contacted").length;
+    const booked = quotes.filter((q) => q.status === "booked").length;
+    const completed = quotes.filter((q) => q.status === "completed").length;
+    return { total, newQuotes, contacted, booked, completed };
+  }, [quotes]);
 
   return (
     <div className="min-h-screen bg-[#0A1020]">
       {/* Header */}
       <header className="bg-[#0A1020] border-b border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-[#00FFB0] rounded-lg flex items-center justify-center">
                 <span className="text-[#0A1020] font-bold text-xl">A</span>
@@ -209,6 +257,11 @@ export function AdminPage() {
                 </Badge>
               </div>
             </div>
+            {adminEmail && (
+              <p className="text-white/50 text-sm hidden sm:block flex-1 text-right">
+                {adminEmail}
+              </p>
+            )}
             <Button
               onClick={handleSignOut}
               className="bg-[#00FFB0] text-[#0A1020] hover:bg-[#00FFB0]/90 border-none"
@@ -304,8 +357,18 @@ export function AdminPage() {
 
         {/* Quotes Table */}
         {!loading && (
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10 overflow-hidden">
-            <div className="overflow-x-auto">
+          <Card className="relative bg-white/5 backdrop-blur-sm border-white/10 overflow-hidden">
+            {tableBusy && (
+              <div className="absolute inset-0 z-10 bg-[#0A1020]/80 flex flex-col items-center justify-center space-y-3">
+                <div className="w-6 h-6 border-2 border-[#00FFB0] border-t-transparent rounded-full animate-spin" />
+                <p className="text-white/60 text-sm">Updating quotes…</p>
+              </div>
+            )}
+            <div
+              className={`overflow-x-auto ${
+                tableBusy ? "pointer-events-none opacity-70" : ""
+              }`}
+            >
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/10 hover:bg-white/5">
@@ -331,7 +394,12 @@ export function AdminPage() {
                     filteredQuotes.map((quote) => (
                       <TableRow
                         key={quote.id}
-                        className="border-white/10 hover:bg-white/5"
+                        ref={(node) => {
+                          rowRefs.current[quote.id] = node;
+                        }}
+                        className={`border-white/10 hover:bg-white/5 transition-opacity ${
+                          mutatingQuoteId === quote.id ? "opacity-70" : ""
+                        }`}
                       >
                         <TableCell>
                           <div className="text-white">{quote.name}</div>
@@ -369,7 +437,7 @@ export function AdminPage() {
                         <TableCell className="text-white/70 text-sm">
                           {new Date(quote.created_at).toLocaleDateString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="gap-2">
                           <Select
                             value={quote.status}
                             onValueChange={(value: QuoteStatus) =>
