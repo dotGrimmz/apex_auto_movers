@@ -20,7 +20,14 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Skeleton } from "../components/ui/skeleton";
-import { LogOut, Search, Filter, ArrowRight, AlertCircle, Eye } from "lucide-react";
+import {
+  LogOut,
+  Search,
+  Filter,
+  ArrowRight,
+  AlertCircle,
+  Eye,
+} from "lucide-react";
 import { api } from "../utils/api";
 import { signOut } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
@@ -30,7 +37,6 @@ import { QuoteDetailsDrawer } from "../components/QuoteDetailsDrawer";
 const statusOptions: Array<{ value: QuoteStatus; label: string }> = [
   { value: "new", label: "New" },
   { value: "contacted", label: "Contacted" },
-  { value: "quoted", label: "Quoted" },
   { value: "booked", label: "Booked" },
   { value: "completed", label: "Completed" },
 ];
@@ -38,7 +44,6 @@ const statusOptions: Array<{ value: QuoteStatus; label: string }> = [
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
   contacted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
-  quoted: "bg-amber-500/20 text-amber-400 border-amber-500/50",
   booked: "bg-green-500/20 text-green-400 border-green-500/50",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
 };
@@ -137,7 +142,9 @@ export function AdminPage() {
         prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
       );
       setSelectedQuote((current) =>
-        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+        current && current.id === quoteId
+          ? { ...current, ...updatedQuote }
+          : current
       );
       setDrawerOpen(false);
     } catch (err: any) {
@@ -159,7 +166,9 @@ export function AdminPage() {
         prev.map((q) => (q.id === quoteId ? { ...q, ...updatedQuote } : q))
       );
       setSelectedQuote((current) =>
-        current && current.id === quoteId ? { ...current, ...updatedQuote } : current
+        current && current.id === quoteId
+          ? { ...current, ...updatedQuote }
+          : current
       );
     } catch (err: any) {
       console.error("Error saving quote details:", err);
@@ -369,7 +378,7 @@ export function AdminPage() {
                         <TableCell className="text-white/70 text-sm">
                           {new Date(quote.created_at).toLocaleDateString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="gap-2">
                           <Select
                             value={quote.status}
                             onValueChange={(value: QuoteStatus) =>
@@ -393,7 +402,7 @@ export function AdminPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="mt-2 text-white/80 hover:text-white hover:bg-white/10"
+                            className="mt-2 cursor-pointer text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
                             onClick={() => handleOpenQuoteDetails(quote)}
                           >
                             <Eye className="w-4 h-4 mr-2" />

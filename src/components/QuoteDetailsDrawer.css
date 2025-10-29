@@ -118,12 +118,6 @@
   color: #d2a4ff;
 }
 
-.quote-drawer__status--quoted {
-  border-color: rgba(255, 171, 0, 0.4);
-  background: rgba(255, 171, 0, 0.1);
-  color: #ffd54f;
-}
-
 .quote-drawer__status--booked {
   border-color: rgba(39, 174, 96, 0.4);
   background: rgba(39, 174, 96, 0.1);

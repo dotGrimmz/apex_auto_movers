@@ -21,21 +21,13 @@ type Quote = {
   model: string;
   transport_type: "open" | "enclosed";
   pickup_date?: string | null;
-  status:
-    | "new"
-    | "contacted"
-    | "booked"
-    | "completed"
-    | "quoted"
-    | "in_transit"
-    | "cancelled";
+  status: "new" | "contacted" | "booked" | "completed" | "in_transit" | "cancelled";
   created_at: string;
   updated_at: string;
 };
 
 const statusColors: Record<string, string> = {
   new: "bg-blue-500/20 text-blue-400 border-blue-500/50",
-  quoted: "bg-purple-500/20 text-purple-400 border-purple-500/50",
   booked: "bg-green-500/20 text-green-400 border-green-500/50",
   in_transit: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",

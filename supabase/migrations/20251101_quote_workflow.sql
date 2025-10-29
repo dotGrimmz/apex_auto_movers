@@ -18,7 +18,7 @@ alter table if exists public.quotes
   drop constraint if exists quotes_status_check;
 alter table if exists public.quotes
   add constraint quotes_status_check check (
-    status in ('new','contacted','quoted','booked','completed')
+    status in ('new','contacted','booked','completed')
   );
 
 -- Helpful indexes for admin workflows
