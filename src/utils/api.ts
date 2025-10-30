@@ -1,4 +1,5 @@
 import { createClient } from "./supabase/client";
+import { publicAnonKey } from "./supabase/info";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") || "/api";
 
@@ -8,12 +9,14 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     data: { session },
   } = await supabase.auth.getSession();
   const token = session?.access_token;
+  const authHeader = token ? token : publicAnonKey;
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      apikey: publicAnonKey,
+      Authorization: `Bearer ${authHeader}`,
       ...(options.headers || {}),
     },
   });
