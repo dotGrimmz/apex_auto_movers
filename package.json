@@ -67,6 +67,7 @@
       "scripts": {
             "dev": "concurrently \"npm run server\" \"npm run client\"",
             "server": "tsx watch -r dotenv/config server/index.ts",
-            "client": "vite"
+            "client": "vite",
+            "build": "vite build"
       }
 }
