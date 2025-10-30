@@ -1,3 +1,5 @@
+import type { User } from "npm:@supabase/supabase-js@2";
+
 export type Role = "user" | "admin";
 
 export interface SignupBody {
@@ -17,3 +19,10 @@ export interface QuoteBody {
   transport_type: "open" | "enclosed";
   pickup_date?: string | null;
 }
+
+export type AppBindings = {
+  Variables: {
+    requestId: string;
+    user?: User;
+  };
+};
