@@ -24,7 +24,6 @@ import { LogOut, Search, Filter, ArrowRight, AlertCircle } from "lucide-react";
 import { api } from "../utils/api";
 import { signOut } from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
-import { api } from "../utils/api";
 
 interface Quote {
   id: string;
@@ -322,7 +321,7 @@ export function AdminPage() {
                         <TableCell>
                           <Select
                             value={quote.status}
-                            onValueChange={(value) =>
+                            onValueChange={(value: Quote["id"]) =>
                               handleStatusChange(quote.id, value)
                             }
                           >

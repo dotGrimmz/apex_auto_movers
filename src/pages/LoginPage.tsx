@@ -5,13 +5,21 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Card } from "../components/ui/card";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { signIn } from "../utils/auth";
+import {
+  signIn,
+  signInWithOAuth,
+  SUPPORTED_OAUTH_PROVIDERS,
+  AuthError,
+  type SupportedOAuthProvider,
+} from "../utils/auth";
 import { useRouter } from "../components/RouterContext";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] =
+    useState<SupportedOAuthProvider | null>(null);
   const [error, setError] = useState("");
   const { navigate } = useRouter();
 
@@ -23,11 +31,50 @@ export function LoginPage() {
     try {
       await signIn(email, password);
       navigate("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
-      setError(err.message || "Invalid email or password");
+      setError(
+        err instanceof AuthError ? err.message : "Invalid email or password"
+      );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const providerConfig: Record<
+    SupportedOAuthProvider,
+    { label: string; accentClass: string }
+  > = {
+    google: {
+      label: "Continue with Google",
+      accentClass: "bg-white text-[#0A1020] hover:bg-white/90",
+    },
+    facebook: {
+      label: "Continue with Facebook",
+      accentClass: "bg-[#1877F2] text-white hover:bg-[#0f5ccc]",
+    },
+  };
+
+  const handleOAuthSignIn = async (provider: SupportedOAuthProvider) => {
+    setError("");
+    setOauthLoading(provider);
+
+    try {
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/dashboard`
+          : undefined;
+      const { url } = await signInWithOAuth(provider, redirectTo);
+
+      if (url && typeof window !== "undefined") {
+        window.location.assign(url);
+      }
+    } catch (err: unknown) {
+      console.error(`OAuth sign-in error for ${provider}:`, err);
+      const defaultMessage = `Unable to continue with ${provider}. Please try again.`;
+      setError(err instanceof AuthError ? err.message : defaultMessage);
+    } finally {
+      setOauthLoading((current) => (current === provider ? null : current));
     }
   };
 
@@ -55,7 +102,9 @@ export function LoginPage() {
             <div className="w-12 h-12 bg-[#00FFB0] rounded-xl flex items-center justify-center">
               <span className="text-[#0A1020] font-bold text-2xl">A</span>
             </div>
-            <span className="text-white text-2xl tracking-tight">Apex Auto Movers</span>
+            <span className="text-white text-2xl tracking-tight">
+              Apex Auto Movers
+            </span>
           </div>
           <p className="text-white/70">Sign in to view your quotes</p>
         </div>
@@ -73,7 +122,36 @@ export function LoginPage() {
               <p className="text-sm text-red-400">{error}</p>
             </motion.div>
           )}
+          {/* TODO: SMH IMEPLEMENT BUT WILL NEED TO ADD TO GOOGLE OAUTH */}
+          {/* <div className="space-y-3 mb-6">
+            {SUPPORTED_OAUTH_PROVIDERS.map((provider) => (
+              <Button
+                key={provider}
+                type="button"
+                disabled={oauthLoading === provider}
+                className={`w-full h-11 transition ${providerConfig[provider].accentClass}`}
+                onClick={() => handleOAuthSignIn(provider)}
+              >
+                {oauthLoading === provider ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Redirecting...
+                  </>
+                ) : (
+                  providerConfig[provider].label
+                )}
+              </Button>
+            ))}
+          </div> 
 
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-px flex-1 bg-white/20" />
+            <span className="text-white/50 text-xs uppercase tracking-[0.3em]">
+              or
+            </span>
+            <div className="h-px flex-1 bg-white/20" />
+          </div>
+*/}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-white">
